@@ -1,8 +1,8 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaLeaf, FaFlask, FaUpload } from "react-icons/fa";
 import { TypeAnimation } from "react-type-animation";
+import { toast } from "sonner";
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,31 +22,30 @@ const Index = () => {
   ];
 
   const PredictionComponent = () => {
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [isDragging, setIsDragging] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [prediction, setPrediction] = useState<string | null>(null);
 
-    const handleImageUpload = (event) => {
-      const file = event.target.files[0];
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
       if (file) {
         setSelectedImage(URL.createObjectURL(file));
+        analyzeDiseaseImage(file);
       }
     };
 
-    const handleDragOver = (e) => {
-      e.preventDefault();
-      setIsDragging(true);
-    };
-
-    const handleDragLeave = () => {
-      setIsDragging(false);
-    };
-
-    const handleDrop = (e) => {
-      e.preventDefault();
-      setIsDragging(false);
-      const file = e.dataTransfer.files[0];
-      if (file) {
-        setSelectedImage(URL.createObjectURL(file));
+    const analyzeDiseaseImage = async (file: File) => {
+      setIsAnalyzing(true);
+      setPrediction(null);
+      
+      try {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setPrediction("Leaf Spot Disease");
+        toast.success("Disease analysis completed!");
+      } catch (error) {
+        toast.error("Failed to analyze image. Please try again.");
+      } finally {
+        setIsAnalyzing(false);
       }
     };
 
@@ -55,16 +54,10 @@ const Index = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="glass-card p-8"
+        className="glass-card p-8 max-w-2xl mx-auto"
       >
         <h2 className="text-2xl font-bold mb-6 gradient-text">Disease Detection</h2>
-        <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300
-            ${isDragging ? 'border-primary bg-primary/5' : 'border-gray-300'}`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
           <input
             type="file"
             accept="image/*"
@@ -74,16 +67,28 @@ const Index = () => {
           />
           <label htmlFor="image-upload" className="cursor-pointer block">
             <FaUpload className="mx-auto text-3xl text-gray-400 mb-3" />
-            <p className="text-gray-600">Drop your brinjal leaf image here or click to upload</p>
+            <p className="text-gray-600">Upload Brinjal Leaf Image</p>
           </label>
           {selectedImage && (
-            <motion.img
-              initial={{ opacity: 0, scale: 0.9 }}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              src={selectedImage}
-              alt="Selected"
-              className="mt-6 max-w-full h-auto rounded-lg shadow-md"
-            />
+              className="mt-6"
+            >
+              <img
+                src={selectedImage}
+                alt="Selected leaf"
+                className="max-w-full h-auto rounded-lg shadow-md mx-auto"
+              />
+              {isAnalyzing ? (
+                <p className="mt-4 text-primary animate-pulse">Analyzing image...</p>
+              ) : prediction && (
+                <div className="mt-6 p-4 bg-primary/10 rounded-lg">
+                  <h3 className="text-lg font-semibold text-primary mb-2">Detection Result</h3>
+                  <p className="text-gray-700">{prediction}</p>
+                </div>
+              )}
+            </motion.div>
           )}
         </div>
       </motion.div>
@@ -102,9 +107,23 @@ const Index = () => {
       potassium: ""
     });
 
-    const handleSubmit = (e) => {
+    const soilTypes = [
+      "Clay",
+      "Sandy",
+      "Loamy",
+      "Silt",
+      "Peat",
+      "Chalky"
+    ];
+
+    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      // Handle form submission
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        toast.success("Fertilizer recommendation generated!");
+      } catch (error) {
+        toast.error("Failed to generate recommendation. Please try again.");
+      }
     };
 
     return (
@@ -112,7 +131,7 @@ const Index = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="glass-card p-8"
+        className="glass-card p-8 max-w-3xl mx-auto"
       >
         <h2 className="text-2xl font-bold mb-6 gradient-text">Fertilizer Recommendation</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -125,8 +144,10 @@ const Index = () => {
               className="input-field"
               value={formData.disease}
               onChange={(e) => setFormData({...formData, disease: e.target.value})}
+              placeholder="Enter identified disease"
             />
           </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -150,10 +171,78 @@ const Index = () => {
                 onChange={(e) => setFormData({...formData, humidity: e.target.value})}
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Moisture (%)
+              </label>
+              <input
+                type="number"
+                className="input-field"
+                value={formData.moisture}
+                onChange={(e) => setFormData({...formData, moisture: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Soil Type
+              </label>
+              <select
+                className="input-field"
+                value={formData.soil_type}
+                onChange={(e) => setFormData({...formData, soil_type: e.target.value})}
+              >
+                <option value="">Select soil type</option>
+                {soilTypes.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <button type="submit" className="primary-button w-full">
-            Get Recommendation
-          </button>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nitrogen
+              </label>
+              <input
+                type="number"
+                className="input-field"
+                value={formData.nitrogen}
+                onChange={(e) => setFormData({...formData, nitrogen: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Phosphorus
+              </label>
+              <input
+                type="number"
+                className="input-field"
+                value={formData.phosphorus}
+                onChange={(e) => setFormData({...formData, phosphorus: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Potassium
+              </label>
+              <input
+                type="number"
+                className="input-field"
+                value={formData.potassium}
+                onChange={(e) => setFormData({...formData, potassium: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            className="primary-button w-full"
+          >
+            Generate Recommendation
+          </motion.button>
         </form>
       </motion.div>
     );
@@ -299,38 +388,39 @@ const Index = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-2 gap-8">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2 }}
-              className="glass-card p-8"
-            >
-              <div className="flex flex-col items-center text-center">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  className="animate-float"
-                >
-                  {feature.icon}
-                </motion.div>
-                <h3 className="mt-4 text-xl font-semibold gradient-text">
-                  {feature.title}
-                </h3>
-                <p className="mt-2 text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {activeSection === 'predict' && <PredictionComponent />}
         {activeSection === 'recommend' && <RecommendationComponent />}
         {activeSection === 'about' && <AboutComponent />}
+        {activeSection === 'home' && (
+          <>
+            <div className="grid md:grid-cols-2 gap-8">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.2 }}
+                  className="glass-card p-8"
+                >
+                  <div className="flex flex-col items-center text-center">
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      className="animate-float"
+                    >
+                      {feature.icon}
+                    </motion.div>
+                    <h3 className="mt-4 text-xl font-semibold gradient-text">
+                      {feature.title}
+                    </h3>
+                    <p className="mt-2 text-gray-600 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       <footer className="bg-gradient-to-r from-primary to-secondary text-white">

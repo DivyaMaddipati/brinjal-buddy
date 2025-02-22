@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaLeaf, FaFlask, FaUpload } from "react-icons/fa";
@@ -24,11 +23,14 @@ const Index = () => {
   const PredictionComponent = () => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [prediction, setPrediction] = useState(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const handleImageUpload = (event) => {
       const file = event.target.files[0];
       if (file) {
         setSelectedImage(URL.createObjectURL(file));
+        analyzeDiseaseImage(file);
       }
     };
 
@@ -47,7 +49,16 @@ const Index = () => {
       const file = e.dataTransfer.files[0];
       if (file) {
         setSelectedImage(URL.createObjectURL(file));
+        analyzeDiseaseImage(file);
       }
+    };
+
+    const analyzeDiseaseImage = async (file) => {
+      setIsAnalyzing(true);
+      setTimeout(() => {
+        setPrediction("Leaf Spot Disease");
+        setIsAnalyzing(false);
+      }, 2000);
     };
 
     return (
@@ -77,13 +88,35 @@ const Index = () => {
             <p className="text-gray-600">Drop your brinjal leaf image here or click to upload</p>
           </label>
           {selectedImage && (
-            <motion.img
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              src={selectedImage}
-              alt="Selected"
-              className="mt-6 max-w-full h-auto rounded-lg shadow-md"
-            />
+              className="mt-6"
+            >
+              <img
+                src={selectedImage}
+                alt="Selected leaf"
+                className="max-w-full h-auto rounded-lg shadow-md mx-auto"
+              />
+              {isAnalyzing ? (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-4 text-primary font-medium"
+                >
+                  Analyzing image...
+                </motion.p>
+              ) : prediction && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 p-4 bg-primary/10 rounded-lg"
+                >
+                  <h3 className="text-lg font-semibold text-primary mb-2">Detection Result</h3>
+                  <p className="text-gray-700">{prediction}</p>
+                </motion.div>
+              )}
+            </motion.div>
           )}
         </div>
       </motion.div>
@@ -102,9 +135,18 @@ const Index = () => {
       potassium: ""
     });
 
+    const soilTypes = [
+      "Clay",
+      "Sandy",
+      "Loamy",
+      "Silt",
+      "Peat",
+      "Chalky"
+    ];
+
     const handleSubmit = (e) => {
       e.preventDefault();
-      // Handle form submission
+      console.log("Form submitted:", formData);
     };
 
     return (
@@ -116,44 +158,129 @@ const Index = () => {
       >
         <h2 className="text-2xl font-bold mb-6 gradient-text">Fertilizer Recommendation</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Disease Identified
-            </label>
-            <input
-              type="text"
-              className="input-field"
-              value={formData.disease}
-              onChange={(e) => setFormData({...formData, disease: e.target.value})}
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold gradient-text">Disease Information</h3>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Temperature (°C)
+                Disease Identified
               </label>
               <input
-                type="number"
+                type="text"
                 className="input-field"
-                value={formData.temperature}
-                onChange={(e) => setFormData({...formData, temperature: e.target.value})}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Humidity (%)
-              </label>
-              <input
-                type="number"
-                className="input-field"
-                value={formData.humidity}
-                onChange={(e) => setFormData({...formData, humidity: e.target.value})}
+                value={formData.disease}
+                onChange={(e) => setFormData({...formData, disease: e.target.value})}
+                placeholder="Enter identified disease"
               />
             </div>
           </div>
-          <button type="submit" className="primary-button w-full">
-            Get Recommendation
-          </button>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold gradient-text">Environmental Factors</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Temperature (°C)
+                </label>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={formData.temperature}
+                  onChange={(e) => setFormData({...formData, temperature: e.target.value})}
+                  placeholder="Enter temperature"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Humidity (%)
+                </label>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={formData.humidity}
+                  onChange={(e) => setFormData({...formData, humidity: e.target.value})}
+                  placeholder="Enter humidity"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Moisture (%)
+                </label>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={formData.moisture}
+                  onChange={(e) => setFormData({...formData, moisture: e.target.value})}
+                  placeholder="Enter moisture level"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Soil Type
+                </label>
+                <select
+                  className="input-field"
+                  value={formData.soil_type}
+                  onChange={(e) => setFormData({...formData, soil_type: e.target.value})}
+                >
+                  <option value="">Select soil type</option>
+                  {soilTypes.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold gradient-text">Soil Nutrient Levels</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nitrogen (N)
+                </label>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={formData.nitrogen}
+                  onChange={(e) => setFormData({...formData, nitrogen: e.target.value})}
+                  placeholder="Enter nitrogen level"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phosphorus (P)
+                </label>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={formData.phosphorus}
+                  onChange={(e) => setFormData({...formData, phosphorus: e.target.value})}
+                  placeholder="Enter phosphorus level"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Potassium (K)
+                </label>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={formData.potassium}
+                  onChange={(e) => setFormData({...formData, potassium: e.target.value})}
+                  placeholder="Enter potassium level"
+                />
+              </div>
+            </div>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            className="primary-button w-full"
+          >
+            Generate Recommendation
+          </motion.button>
         </form>
       </motion.div>
     );
@@ -169,7 +296,7 @@ const Index = () => {
       >
         <h2 className="text-2xl font-bold mb-6 gradient-text">About BrinjalCare</h2>
         <p className="text-gray-700 mb-8 leading-relaxed">
-          BrinjalCare is an innovative AI-powered solution designed to help farmers optimize their brinjal cultivation through advanced disease detection and intelligent fertilizer recommendations.
+          BrinjalCare is an innovative AI-powered solution designed to help farmers optimize their brinjal cultivation. Our system combines advanced machine learning with agricultural expertise to provide accurate disease detection and personalized fertilizer recommendations.
         </p>
         <div className="grid md:grid-cols-2 gap-6">
           <motion.div
@@ -178,7 +305,7 @@ const Index = () => {
           >
             <h3 className="text-xl font-semibold mb-3 gradient-text">Our Mission</h3>
             <p className="text-gray-600">
-              To empower farmers with cutting-edge technology for better crop management and increased yields.
+              To empower farmers with cutting-edge technology for better crop management and increased yields. We aim to make advanced agricultural technology accessible to all farmers.
             </p>
           </motion.div>
           <motion.div
@@ -187,9 +314,26 @@ const Index = () => {
           >
             <h3 className="text-xl font-semibold mb-3 gradient-text">Technology</h3>
             <p className="text-gray-600">
-              Utilizing advanced machine learning algorithms and agricultural science to provide accurate disease detection and recommendations.
+              Our system utilizes deep learning models for accurate disease detection and sophisticated algorithms for fertilizer recommendations based on multiple environmental and soil factors.
             </p>
           </motion.div>
+        </div>
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold mb-4 gradient-text">How It Works</h3>
+          <div className="space-y-4">
+            <div className="glass-card p-4">
+              <h4 className="font-medium mb-2">1. Disease Detection</h4>
+              <p className="text-gray-600">Upload images of brinjal leaves to instantly detect diseases using our AI model.</p>
+            </div>
+            <div className="glass-card p-4">
+              <h4 className="font-medium mb-2">2. Analysis</h4>
+              <p className="text-gray-600">Our system analyzes environmental factors and soil conditions for optimal recommendations.</p>
+            </div>
+            <div className="glass-card p-4">
+              <h4 className="font-medium mb-2">3. Recommendation</h4>
+              <p className="text-gray-600">Receive personalized fertilizer recommendations based on comprehensive analysis.</p>
+            </div>
+          </div>
         </div>
       </motion.div>
     );

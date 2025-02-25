@@ -39,10 +39,24 @@ const Index = () => {
       setPrediction(null);
       
       try {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setPrediction("Leaf Spot Disease");
-        toast.success("Disease analysis completed!");
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const response = await fetch('http://localhost:5000/predict', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          setPrediction(data.prediction);
+          toast.success("Disease analysis completed!");
+        } else {
+          throw new Error(data.error || 'Failed to analyze image');
+        }
       } catch (error) {
+        console.error('Error analyzing image:', error);
         toast.error("Failed to analyze image. Please try again.");
       } finally {
         setIsAnalyzing(false);
@@ -236,8 +250,8 @@ const Index = () => {
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             type="submit"
             className="primary-button w-full"
           >

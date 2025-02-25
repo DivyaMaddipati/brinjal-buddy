@@ -22,6 +22,9 @@ def initialize_models():
     disease_predictor.load_model()
     fertilizer_recommender = FertilizerRecommender(os.getenv('GOOGLE_API_KEY'))
 
+# Initialize models at startup
+initialize_models()
+
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'image' not in request.files:
@@ -67,10 +70,6 @@ def recommend_fertilizer():
             'error': str(e),
             'success': False
         }), 500
-
-@app.before_first_request
-def initialize():
-    initialize_models()
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

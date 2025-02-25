@@ -120,23 +120,51 @@ const Index = () => {
       phosphorus: "",
       potassium: ""
     });
+    const [recommendations, setRecommendations] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const soilTypes = [
-      "Clay",
       "Sandy",
+      "Clayey",
       "Loamy",
-      "Silt",
-      "Peat",
-      "Chalky"
+      "Black",
+      "Red"
     ];
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      setIsLoading(true);
+      
       try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        toast.success("Fertilizer recommendation generated!");
+        const response = await fetch('http://localhost:5000/recommend-fertilizer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...formData,
+            temperature: Number(formData.temperature),
+            humidity: Number(formData.humidity),
+            moisture: Number(formData.moisture),
+            nitrogen: Number(formData.nitrogen),
+            phosphorus: Number(formData.phosphorus),
+            potassium: Number(formData.potassium),
+          }),
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          setRecommendations(data.recommendations);
+          toast.success("Fertilizer recommendations generated!");
+        } else {
+          throw new Error(data.error || 'Failed to generate recommendations');
+        }
       } catch (error) {
-        toast.error("Failed to generate recommendation. Please try again.");
+        console.error('Error generating recommendations:', error);
+        toast.error("Failed to generate recommendations. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -254,10 +282,36 @@ const Index = () => {
             whileTap={{ scale: 0.95 }}
             type="submit"
             className="primary-button w-full"
+            disabled={isLoading}
           >
-            Generate Recommendation
+            {isLoading ? "Generating..." : "Generate Recommendation"}
           </motion.button>
         </form>
+
+        {recommendations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 p-6 bg-white/50 rounded-lg"
+          >
+            <h3 className="text-xl font-semibold mb-4 gradient-text">
+              Top 5 Fertilizer Recommendations
+            </h3>
+            <div className="space-y-3">
+              {recommendations.map((rec, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="p-3 bg-white/70 rounded-lg shadow-sm"
+                >
+                  {rec}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </motion.div>
     );
   };

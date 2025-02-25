@@ -18,12 +18,25 @@ fertilizer_recommender = None
 
 def initialize_models():
     global disease_predictor, fertilizer_recommender
+    
+    # Get API key and validate it exists
+    api_key = os.getenv('GOOGLE_API_KEY')
+    if not api_key:
+        raise ValueError("GOOGLE_API_KEY not found in environment variables. Please set it in .env file.")
+    
     disease_predictor = DiseasePredictor(MODEL_PATH)
     disease_predictor.load_model()
-    fertilizer_recommender = FertilizerRecommender(os.getenv('GOOGLE_API_KEY'))
+    fertilizer_recommender = FertilizerRecommender(api_key)
 
-# Initialize models at startup
-initialize_models()
+try:
+    # Initialize models at startup
+    initialize_models()
+except Exception as e:
+    print(f"Error during initialization: {str(e)}")
+    print("Please ensure you have:")
+    print("1. Created a .env file in the backend directory")
+    print("2. Added your Google API key to the .env file like this: GOOGLE_API_KEY=your_api_key_here")
+    exit(1)
 
 @app.route('/predict', methods=['POST'])
 def predict():

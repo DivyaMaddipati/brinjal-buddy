@@ -1,11 +1,8 @@
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import tensorflow as tf
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
-from tensorflow.keras.models import load_model
-import numpy as np
 import os
+from disease_predict import DiseasePredictor
 from fertilizer_recommend import FertilizerRecommender
 from dotenv import load_dotenv
 
@@ -14,22 +11,37 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# Load trained model
+# Initialize predictors
 MODEL_PATH = "model/leaf_disease_resnet50.h5"
-model = None
+disease_predictor = None
 fertilizer_recommender = None
 
-def load_trained_model():
-    global model, fertilizer_recommender
-    model = load_model(MODEL_PATH)
+def initialize_models():
+    global disease_predictor, fertilizer_recommender
+    disease_predictor = DiseasePredictor(MODEL_PATH)
+    disease_predictor.load_model()
     fertilizer_recommender = FertilizerRecommender(os.getenv('GOOGLE_API_KEY'))
-
-def predict_image(image_file):
-    # ... keep existing code for predict_image function
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # ... keep existing code for predict endpoint
+    if 'image' not in request.files:
+        return jsonify({
+            'error': 'No image provided',
+            'success': False
+        }), 400
+    
+    try:
+        image_file = request.files['image']
+        prediction = disease_predictor.predict_image(image_file)
+        return jsonify({
+            'prediction': prediction,
+            'success': True
+        })
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'success': False
+        }), 500
 
 @app.route('/recommend-fertilizer', methods=['POST'])
 def recommend_fertilizer():
@@ -58,7 +70,7 @@ def recommend_fertilizer():
 
 @app.before_first_request
 def initialize():
-    load_trained_model()
+    initialize_models()
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

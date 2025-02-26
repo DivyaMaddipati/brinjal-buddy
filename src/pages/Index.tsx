@@ -449,6 +449,10 @@ const Index = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="primary-button"
+            onClick={() => {
+              setActiveSection('predict');
+              toast.success("Welcome to Disease Detection!");
+            }}
           >
             Get Started
           </motion.button>

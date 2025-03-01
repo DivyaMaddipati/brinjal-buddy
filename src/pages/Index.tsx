@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaLeaf, FaFlask, FaUpload } from "react-icons/fa";

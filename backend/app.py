@@ -63,16 +63,15 @@ def predict():
 def recommend_fertilizer():
     try:
         data = request.json
-        required_fields = ['disease', 'temperature', 'humidity', 'moisture', 
-                         'soil_type', 'nitrogen', 'phosphorus', 'potassium']
         
-        for field in required_fields:
-            if field not in data:
-                return jsonify({
-                    'error': f'Missing required field: {field}',
-                    'success': False
-                }), 400
-
+        # Only 'disease' is required, everything else is optional
+        if 'disease' not in data or not data['disease'].strip():
+            return jsonify({
+                'error': 'Missing required field: disease',
+                'success': False
+            }), 400
+        
+        # Proceed with valid data
         recommendations = fertilizer_recommender.get_recommendations(data)
         return jsonify({
             'recommendations': recommendations,

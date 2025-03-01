@@ -24,23 +24,40 @@ class FertilizerRecommender:
         )
 
     def get_recommendations(self, data):
+        # Build the environmental factors section only if data is provided
+        env_factors = []
+        if data.get('temperature'):
+            env_factors.append(f"Temperature: {data['temperature']}°C")
+        if data.get('humidity'):
+            env_factors.append(f"Humidity: {data['humidity']}%")
+        if data.get('moisture'):
+            env_factors.append(f"Moisture: {data['moisture']}%")
+        if data.get('soil_type'):
+            env_factors.append(f"Soil Type: {data['soil_type']}")
+            
+        env_section = "- **Environmental Factors:** \n  " + "\n  ".join(env_factors) if env_factors else ""
+        
+        # Build the soil nutrients section only if data is provided
+        nutrients = []
+        if data.get('nitrogen'):
+            nutrients.append(f"Nitrogen: {data['nitrogen']}")
+        if data.get('phosphorus'):
+            nutrients.append(f"Phosphorus: {data['phosphorus']}")
+        if data.get('potassium'):
+            nutrients.append(f"Potassium: {data['potassium']}")
+            
+        nutrients_section = "- **Soil Nutrient Levels:** \n  " + "\n  ".join(nutrients) if nutrients else ""
+        
         composite_prompt = f"""
         You are an expert agronomist. Based on the given inputs, recommend the **top 5 fertilizers**:
 
         **Input Data:**
         - **Disease Identified:** {data['disease']}
-        - **Environmental Factors:** 
-          - Temperature: {data['temperature']}°C
-          - Humidity: {data['humidity']}%
-          - Moisture: {data['moisture']}%
-          - Soil Type: {data['soil_type']}
-        - **Soil Nutrient Levels:** 
-          - Nitrogen: {data['nitrogen']}
-          - Phosphorus: {data['phosphorus']}
-          - Potassium: {data['potassium']}
+        {env_section}
+        {nutrients_section}
 
         **Task:**
-        - Provide a list of the **top 5 fertilizers** suitable for this scenario.
+        - Provide a list of the **top 5 fertilizers** suitable for treating or preventing this disease in brinjal plants.
         - Include **one short reason** for why each fertilizer is recommended.
         - Format response as:
           1️⃣ **Fertilizer Name** – Short Reason.

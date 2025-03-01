@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaLeaf, FaFlask, FaUpload } from "react-icons/fa";
@@ -133,23 +134,36 @@ const Index = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      
+      // Validate that disease field is filled
+      if (!formData.disease.trim()) {
+        toast.error("Disease identification is required");
+        return;
+      }
+      
       setIsLoading(true);
       
       try {
+        // Prepare the data - only include fields that have values
+        const requestData: Record<string, any> = {
+          disease: formData.disease
+        };
+
+        // Only add fields that have values
+        if (formData.temperature) requestData.temperature = Number(formData.temperature);
+        if (formData.humidity) requestData.humidity = Number(formData.humidity);
+        if (formData.moisture) requestData.moisture = Number(formData.moisture);
+        if (formData.soil_type) requestData.soil_type = formData.soil_type;
+        if (formData.nitrogen) requestData.nitrogen = Number(formData.nitrogen);
+        if (formData.phosphorus) requestData.phosphorus = Number(formData.phosphorus);
+        if (formData.potassium) requestData.potassium = Number(formData.potassium);
+
         const response = await fetch('http://localhost:5000/recommend-fertilizer', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            ...formData,
-            temperature: Number(formData.temperature),
-            humidity: Number(formData.humidity),
-            moisture: Number(formData.moisture),
-            nitrogen: Number(formData.nitrogen),
-            phosphorus: Number(formData.phosphorus),
-            potassium: Number(formData.potassium),
-          }),
+          body: JSON.stringify(requestData),
         });
 
         const data = await response.json();
@@ -179,7 +193,7 @@ const Index = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Disease Identified
+              Disease Identified <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -187,7 +201,9 @@ const Index = () => {
               value={formData.disease}
               onChange={(e) => setFormData({...formData, disease: e.target.value})}
               placeholder="Enter identified disease"
+              required
             />
+            <p className="text-xs text-gray-500 mt-1">Required field</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -276,6 +292,8 @@ const Index = () => {
               />
             </div>
           </div>
+
+          <p className="text-sm text-gray-500 italic">Note: All fields except Disease Identified are optional.</p>
 
           <motion.button
             whileHover={{ scale: 1.05 }}

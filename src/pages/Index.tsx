@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { FaLeaf, FaFlask, FaUpload } from "react-icons/fa";
 import { TypeAnimation } from "react-type-animation";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -390,6 +391,9 @@ const Index = () => {
                   {item.charAt(0).toUpperCase() + item.slice(1)}
                 </button>
               ))}
+              <Link to="/leaf-diseases" className="nav-link">
+                Leaf Diseases
+              </Link>
             </div>
 
             <div className="md:hidden">
@@ -435,6 +439,13 @@ const Index = () => {
                   {item.charAt(0).toUpperCase() + item.slice(1)}
                 </button>
               ))}
+              <Link 
+                to="/leaf-diseases" 
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Leaf Diseases
+              </Link>
             </div>
           </motion.div>
         )}

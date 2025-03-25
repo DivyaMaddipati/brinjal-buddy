@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaLeaf, FaFlask, FaUpload } from "react-icons/fa";
@@ -394,6 +395,9 @@ const Index = () => {
               <Link to="/leaf-diseases" className="nav-link">
                 Leaf Diseases
               </Link>
+              <Link to="/algorithm-info" className="nav-link">
+                Model Info
+              </Link>
             </div>
 
             <div className="md:hidden">
@@ -445,6 +449,13 @@ const Index = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Leaf Diseases
+              </Link>
+              <Link 
+                to="/algorithm-info" 
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Model Info
               </Link>
             </div>
           </motion.div>

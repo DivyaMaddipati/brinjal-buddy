@@ -33,7 +33,7 @@ const LeafDiseases = () => {
         "Practice crop rotation with non-susceptible crops",
         "Apply fungicides preventively during flowering stage"
       ],
-      imageUrl: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY4MjY5MDIyMA&ixlib=rb-4.0.3&q=80&w=400"
+      imageUrl: "/diseases/whitemold.jpg"
     },
     {
       id: "smallleaf",
@@ -51,7 +51,7 @@ const LeafDiseases = () => {
         "Control insect vectors that may spread diseases",
         "Use disease-free seedlings from reliable sources"
       ],
-      imageUrl: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY4MjY5MDQ1NA&ixlib=rb-4.0.3&q=80&w=400"
+      imageUrl: "/diseases/smallleaf.jpg"
     },
     {
       id: "mosaicvirus",
@@ -69,7 +69,7 @@ const LeafDiseases = () => {
         "Remove and destroy infected plants immediately",
         "Disinfect tools between plants to prevent mechanical transmission"
       ],
-      imageUrl: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY4MjY5MDUyNw&ixlib=rb-4.0.3&q=80&w=400"
+      imageUrl: "/diseases/mosaicvirus.jpg"
     },
     {
       id: "leafspot",
@@ -87,7 +87,7 @@ const LeafDiseases = () => {
         "Apply fungicides at early stages of infection",
         "Remove and destroy infected plant debris"
       ],
-      imageUrl: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY4MjY5MDIyMA&ixlib=rb-4.0.3&q=80&w=400"
+      imageUrl: "/diseases/leafspot.jpg"
     },
     {
       id: "insectpest",
@@ -105,7 +105,7 @@ const LeafDiseases = () => {
         "Application of neem oil or appropriate insecticides",
         "Installation of yellow sticky traps for flying insects"
       ],
-      imageUrl: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY4MjY5MDQ1NA&ixlib=rb-4.0.3&q=80&w=400"
+      imageUrl: "/diseases/insectpest.jpg"
     },
     {
       id: "healthyleaf",
@@ -123,7 +123,7 @@ const LeafDiseases = () => {
         "Good air circulation around plants",
         "Preventive pest monitoring and management"
       ],
-      imageUrl: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY4MjY5MDUyNw&ixlib=rb-4.0.3&q=80&w=400"
+      imageUrl: "/diseases/healthyleaf.jpg"
     }
   ];
 
@@ -175,6 +175,11 @@ const LeafDiseases = () => {
                   src={disease.imageUrl} 
                   alt={disease.name} 
                   className="object-cover w-full h-full"
+                  onError={(e) => {
+                    // Fallback to placeholder if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://images.unsplash.com/photo-1518495973542-4542c06a5843?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400";
+                  }}
                 />
               </div>
               <div className="flex items-center mb-2">
@@ -202,6 +207,11 @@ const LeafDiseases = () => {
                     src={selectedDiseaseInfo.imageUrl} 
                     alt={selectedDiseaseInfo.name} 
                     className="w-full h-auto object-cover"
+                    onError={(e) => {
+                      // Fallback to placeholder if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.src = "https://images.unsplash.com/photo-1518495973542-4542c06a5843?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400";
+                    }}
                   />
                 </div>
               </div>

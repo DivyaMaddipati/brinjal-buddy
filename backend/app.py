@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Initialize predictors
-MODEL_PATH = "model/leaf_disease_resnet50.h5"
+MODEL_PATH = "model/leaf_disease_model.h5"
 disease_predictor = None
 fertilizer_recommender = None
 

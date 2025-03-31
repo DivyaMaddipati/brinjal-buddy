@@ -35,7 +35,7 @@ class DiseasePredictor:
             
             # Make prediction
             prediction = self.model.predict(img_array)
-            predicted_class = np.argmax(prediction)
+            predicted_class = np.argmax(prediction[0])
             
             return self.class_labels[predicted_class]
         finally:
